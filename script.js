@@ -68,12 +68,19 @@ function shuffleArray(arr) {
 }
 
 function getRandomDoors() {
-    const startIndex = getRandomIndex(gridOrder);
+    // สุ่มตำแหน่งเริ่มต้นในลูป gridOrder
+    const startIndex = Math.floor(Math.random() * gridOrder.length);
+    
+    // สร้างอาร์เรย์เพื่อเก็บประตูที่เรียงแล้ว
     const orderedDoors = [];
+    
+    // เรียงประตูตามลำดับ gridOrder โดยเริ่มจาก startIndex
     for (let i = 0; i < doors.length; i++) {
-        const index = (startIndex + i) % gridOrder.length;
-        orderedDoors.push({ ...doors[i], position: gridOrder[index] });
+        const positionIndex = (startIndex + i) % gridOrder.length;
+        const position = gridOrder[positionIndex];
+        orderedDoors.push({ ...doors[i], position });
     }
+    
     return orderedDoors;
 }
 
@@ -83,17 +90,23 @@ function randomizeGrid() {
     const shuffledPieces = shuffleArray([...pieces]);
     const orderedDoors = getRandomDoors();
 
+    // สุ่มตำแหน่งหมาก (เพียง 1 ช่อง)
+    const piecePosition = gridOrder[getRandomIndex(gridOrder)];
+
     gridOrder.forEach((id, index) => {
         const upper = shuffledUpper[index];
         const lower = shuffledLower[index];
         const door = orderedDoors.find(d => d.position === id);
-        const piece = shuffledPieces[index];
+
+        // ตรวจสอบว่าช่องนี้เป็นตำแหน่งหมากหรือไม่
+        const isPiecePosition = id === piecePosition;
+        const piece = isPiecePosition ? shuffledPieces[0] : null;
 
         document.getElementById(id).innerHTML = `
             <div>${upper.name} (${upper.id})</div>
             <div>${lower.name} (${lower.id})</div>
             <div>${door.name} (${door.id})</div>
-            <div>หมาก: ${piece.type} (${piece.id})</div>
+            ${isPiecePosition ? `<div class="piece-highlight">หมาก: ${piece.type} (${piece.id})</div>` : ''}
         `;
     });
 }
